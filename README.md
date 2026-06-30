@@ -159,7 +159,7 @@ candidate-fusion/
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/candidate-fusion.git
+git clone https://github.com/krishnam2005/candidate-fusion.git
 cd candidate-fusion
 
 # Create and activate virtual environment
