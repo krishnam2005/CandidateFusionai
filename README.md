@@ -34,42 +34,7 @@ Deployed at: https://candidatefusionai-production.up.railway.app/
 
 ### Pipeline Flow
 
-```
-Input Sources (CSV | ATS JSON | Resume PDF | GitHub URL | Notes TXT)
-         │
-         ▼
-   Source Detection
-         │
-         ▼
-   Extractors (Strategy Pattern — one per source)
-         │
-         ▼
-   Canonical Mapper (ExtractedCandidate → Candidate)
-         │
-         ▼
-   Normalization (Email | Phone | Skills | Dates | Location | URL)
-         │
-         ▼
-   Merge Engine (Priority-based deterministic merge)
-         │
-         ▼
-   Conflict Resolution (documented per field in provenance)
-         │
-         ▼
-   Confidence Engine (source weights + agreement/disagreement)
-         │
-         ▼
-   Provenance Engine (field-level lineage tracking)
-         │
-         ▼
-   Validation Engine (schema | email | phone | dates | GPA | URLs)
-         │
-         ▼
-   Projection Layer (configurable field selection + null handling)
-         │
-         ▼
-   Output JSON
-```
+<img width="398" height="920" alt="image" src="https://github.com/user-attachments/assets/9807a586-84be-4905-a488-d7f61433ae79" />
 
 ### Design Principles
 
