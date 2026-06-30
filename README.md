@@ -1,7 +1,7 @@
 # CandidateFusion AI
 
 **Multi-Source Candidate Data Transformer**
-
+Deployed at: https://candidatefusionai-production.up.railway.app/
 > A production-grade data transformation pipeline that ingests candidate information from multiple structured and unstructured sources, converts them into a single canonical profile, normalises data, intelligently merges conflicting information, assigns provenance and confidence, validates everything, and outputs configurable JSON.
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://python.org)
