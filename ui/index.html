@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CandidateFusion AI — Eightfold Assignment</title>
+  <meta name="description" content="Multi-source candidate data transformer. Upload CSV, ATS JSON, resume PDF, GitHub profile and recruiter notes to produce a unified canonical candidate profile." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Tokens ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0c10;
+      --surface:     #111318;
+      --surface-2:   #181c24;
+      --surface-3:   #1e2330;
+      --border:      rgba(255,255,255,.07);
+      --border-hover:rgba(255,255,255,.14);
+
+      --accent:      #6c63ff;
+      --accent-dim:  rgba(108,99,255,.12);
+      --accent-glow: rgba(108,99,255,.35);
+      --teal:        #22d3ee;
+      --teal-dim:    rgba(34,211,238,.1);
+      --green:       #34d399;
+      --amber:       #fbbf24;
+      --red:         #f87171;
+
+      --text-1:  #f1f5f9;
+      --text-2:  #94a3b8;
+      --text-3:  #475569;
+
+      --radius:  12px;
+      --radius-sm: 8px;
+      --radius-lg: 18px;
+      --transition: .18s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 99px; }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,12,16,.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--teal));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+
+    .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
+    .logo-sub  { font-size: 11px; color: var(--text-3); font-weight: 400; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      letter-spacing: .3px;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────────── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 36px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+    /* ── Cards ──────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 18px;
+    }
+
+    /* ── File Drop Zones ─────────────────────────────────────────────── */
+    .sources-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 640px) { .sources-grid { grid-template-columns: 1fr; } }
+
+    .drop-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 16px 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .drop-zone.has-file {
+      border-color: var(--green);
+      background: rgba(52,211,153,.06);
+      border-style: solid;
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .drop-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .drop-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+
+    .drop-info { min-width: 0; }
+    .drop-info-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .drop-info-sub   { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+    .drop-checkmark {
+      margin-left: auto;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--green);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .has-file .drop-checkmark { display: flex; }
+
+    /* ── GitHub Row ──────────────────────────────────────────────────── */
+    .github-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .github-row:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .github-prefix {
+      padding: 0 12px;
+      font-size: 12px;
+      color: var(--text-3);
+      background: var(--surface-2);
+      border-right: 1px solid var(--border);
+      height: 42px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .github-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-1);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 0 14px;
+      height: 42px;
+    }
+    .github-input::placeholder { color: var(--text-3); }
+
+    /* ── Submit Button ───────────────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      margin-top: 16px;
+      height: 46px;
+      border-radius: var(--radius);
+      border: none;
+      background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: .2px;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* ── Spinner ─────────────────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .loading .spinner { display: block; }
+    .loading .btn-text { display: none; }
+
+    /* ── Pipeline Steps ──────────────────────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px; top: 34px;
+      width: 1px; bottom: 0;
+      background: var(--border);
+    }
+
+    .step-dot {
+      width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-3);
+      position: relative;
+      z-index: 1;
+      transition: var(--transition);
+    }
+    .step.active .step-dot  { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .step.done   .step-dot  { border-color: var(--green);  color: var(--green);  background: rgba(52,211,153,.1); }
+    .step.error  .step-dot  { border-color: var(--red);    color: var(--red);    background: rgba(248,113,113,.1); }
+
+    .step-content { padding-top: 4px; }
+    .step-name  { font-size: 13px; font-weight: 500; }
+    .step-note  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+    /* ── Error Banner ────────────────────────────────────────────────── */
+    .error-banner {
+      background: rgba(248,113,113,.08);
+      border: 1px solid rgba(248,113,113,.25);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--red);
+      margin-top: 16px;
+      display: none;
+    }
+
+    /* ── Results ─────────────────────────────────────────────────────── */
+    #results { display: none; margin-top: 0; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .result-name { font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+    .result-meta { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+
+    /* ── Confidence Gauge ────────────────────────────────────────────── */
+    .confidence-bar-wrap {
+      margin-top: 14px;
+    }
+    .confidence-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .confidence-score { font-weight: 700; color: var(--text-1); }
+    .bar-track {
+      height: 6px;
+      border-radius: 99px;
+      background: var(--surface-3);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--teal));
+      transition: width .6s ease;
+    }
+
+    /* ── Info Grid ───────────────────────────────────────────────────── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-item {}
+    .info-key   { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+    .info-value { font-size: 13px; color: var(--text-1); word-break: break-word; }
+
+    /* ── Skills ──────────────────────────────────────────────────────── */
+    .skills-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .skill-chip {
+      font-size: 12px;
+      padding: 4px 11px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      background: var(--surface-2);
+      transition: var(--transition);
+    }
+    .skill-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* ── Timeline ────────────────────────────────────────────────────── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+
+    .tl-item {
+      display: flex;
+      gap: 14px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+    .tl-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 14px; top: 28px; bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+    .tl-dot {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      position: relative;
+      z-index: 1;
+    }
+    .tl-body {}
+    .tl-title   { font-size: 14px; font-weight: 600; }
+    .tl-sub     { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .tl-dates   { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+    .current-badge {
+      display: inline-flex;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(52,211,153,.12);
+      color: var(--green);
+      border: 1px solid rgba(52,211,153,.25);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Tabs ────────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      color: var(--text-3);
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+      margin-bottom: -1px;
+    }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--text-2); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── JSON Viewer ─────────────────────────────────────────────────── */
+    .json-viewer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-2);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      overflow: auto;
+      max-height: 480px;
+      white-space: pre;
+    }
+
+    .j-key    { color: #93c5fd; }
+    .j-str    { color: #86efac; }
+    .j-num    { color: #fda4af; }
+    .j-bool   { color: #c4b5fd; }
+    .j-null   { color: var(--text-3); }
+
+    /* ── Metadata Table ───────────────────────────────────────────────── */
+    .meta-table { width: 100%; border-collapse: collapse; }
+    .meta-table td {
+      padding: 8px 10px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-table tr:last-child td { border-bottom: none; }
+    .meta-table td:first-child { color: var(--text-3); width: 48%; }
+    .meta-table td:last-child  { color: var(--text-1); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+    /* ── Field Confidence List ────────────────────────────────────────── */
+    .field-conf-list { display: flex; flex-direction: column; gap: 8px; }
+    .field-conf-item { display: flex; align-items: center; gap: 10px; }
+    .field-conf-name { font-size: 12px; color: var(--text-2); width: 130px; flex-shrink: 0; }
+    .field-conf-bar  { flex: 1; height: 4px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+    .field-conf-fill { height: 100%; border-radius: 99px; }
+    .field-conf-score { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-3); width: 38px; text-align: right; flex-shrink: 0; }
+
+    /* ── Empty States ─────────────────────────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+
+    /* ── Animations ───────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp .35s ease forwards; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">CandidateFusion <span style="color:var(--accent)">AI</span></div>
+      <div class="logo-sub">Eightfold.ai Assignment</div>
+    </div>
+  </div>
+  <span class="badge">v1.0.0</span>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────────────────────── -->
+<main>
+  <h1 class="page-title">Multi-Source Candidate Transformer</h1>
+  <p class="page-subtitle">
+    Upload candidate data from up to five sources. The pipeline merges, normalises and scores them into a single canonical profile.
+  </p>
+
+  <div class="grid">
+
+    <!-- Left: Input + Steps -->
+    <div>
+      <div class="card">
+        <div class="card-title">Input Sources</div>
+
+        <div class="sources-grid">
+          <!-- CSV -->
+          <div class="drop-zone" id="dz-csv">
+            <input type="file" id="input-csv" accept=".csv" />
+            <div class="drop-label">
+              <div class="drop-icon" style="background:rgba(251,191,36,.1);">📊</div>
+              <div class="drop-info">
+                <div class="drop-info-title" id="lbl-csv">Recruiter CSV</div>
+                <div class="drop-info-sub">.csv</div>
+              </div>
+              <div class="drop-checkmark">✓</div>
+            </div>
+          </div>
+
+          <!-- ATS JSON -->
+          <div class="drop-zone" id="dz-ats">
+            <input type="file" id="input-ats" accept=".json" />
+            <div class="drop-label">
+              <div class="drop-icon" style="background:rgba(108,99,255,.1);">🗂️</div>
+              <div class="drop-info">
+                <div class="drop-info-title" id="lbl-ats">ATS JSON</div>
+                <div class="drop-info-sub">.json</div>
+              </div>
+              <div class="drop-checkmark">✓</div>
+            </div>
+          </div>
+
+          <!-- PDF Resume -->
+          <div class="drop-zone" id="dz-resume">
+            <input type="file" id="input-resume" accept=".pdf" />
+            <div class="drop-label">
+              <div class="drop-icon" style="background:rgba(248,113,113,.1);">📄</div>
+              <div class="drop-info">
+                <div class="drop-info-title" id="lbl-resume">Resume PDF</div>
+                <div class="drop-info-sub">.pdf</div>
+              </div>
+              <div class="drop-checkmark">✓</div>
+            </div>
+          </div>
+
+          <!-- Notes TXT -->
+          <div class="drop-zone" id="dz-notes">
+            <input type="file" id="input-notes" accept=".txt" />
+            <div class="drop-label">
+              <div class="drop-icon" style="background:rgba(34,211,238,.1);">📝</div>
+              <div class="drop-info">
+                <div class="drop-info-title" id="lbl-notes">Recruiter Notes</div>
+                <div class="drop-info-sub">.txt</div>
+              </div>
+              <div class="drop-checkmark">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GitHub URL -->
+        <div class="github-row">
+          <span class="github-prefix">github.com /</span>
+          <input class="github-input" id="input-github" type="text"
+                 placeholder="username or full URL" autocomplete="off" />
+        </div>
+
+        <button class="btn-submit" id="btn-run" onclick="runPipeline()">
+          <div class="spinner"></div>
+          <span class="btn-text">⚡ Run Pipeline</span>
+        </button>
+
+        <div class="error-banner" id="error-banner"></div>
+      </div>
+
+      <!-- Pipeline stages -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">Pipeline Stages</div>
+        <div class="steps" id="steps-list">
+          <div class="step" data-step="extract">
+            <div class="step-dot">1</div>
+            <div class="step-content">
+              <div class="step-name">Source Extraction</div>
+              <div class="step-note">CSV · ATS JSON · PDF · GitHub · Notes</div>
+            </div>
+          </div>
+          <div class="step" data-step="map">
+            <div class="step-dot">2</div>
+            <div class="step-content">
+              <div class="step-name">Canonical Mapping</div>
+              <div class="step-note">ExtractedCandidate → Candidate</div>
+            </div>
+          </div>
+          <div class="step" data-step="normalise">
+            <div class="step-dot">3</div>
+            <div class="step-content">
+              <div class="step-name">Normalisation</div>
+              <div class="step-note">Email · Phone · Skills · Dates · Location</div>
+            </div>
+          </div>
+          <div class="step" data-step="merge">
+            <div class="step-dot">4</div>
+            <div class="step-content">
+              <div class="step-name">Merge &amp; Conflict Resolution</div>
+              <div class="step-note">Priority-based deterministic merge</div>
+            </div>
+          </div>
+          <div class="step" data-step="confidence">
+            <div class="step-dot">5</div>
+            <div class="step-content">
+              <div class="step-name">Confidence Scoring</div>
+              <div class="step-note">Source weights + agreement analysis</div>
+            </div>
+          </div>
+          <div class="step" data-step="validate">
+            <div class="step-dot">6</div>
+            <div class="step-content">
+              <div class="step-name">Validation &amp; Projection</div>
+              <div class="step-note">Schema validation → Output JSON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div>
+
+      <!-- Idle placeholder -->
+      <div class="card" id="idle-placeholder">
+        <div class="empty" style="padding:60px 16px;">
+          <div style="font-size:36px;margin-bottom:14px;">🔍</div>
+          <div style="font-size:14px; color:var(--text-2); margin-bottom:6px; font-weight:500;">Ready to transform</div>
+          <div style="font-size:12px; line-height:1.7;">
+            Upload at least one source and click<br/>
+            <strong style="color:var(--text-1)">Run Pipeline</strong> to see the unified profile.
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="results">
+
+        <!-- Profile card -->
+        <div class="card fade-up">
+          <div class="result-header">
+            <div class="avatar" id="res-avatar">?</div>
+            <div>
+              <div class="result-name" id="res-name">—</div>
+              <div class="result-meta" id="res-meta">—</div>
+            </div>
+          </div>
+
+          <div class="info-grid" id="res-info-grid"></div>
+
+          <div class="confidence-bar-wrap">
+            <div class="confidence-label">
+              <span>Overall Confidence</span>
+              <span class="confidence-score" id="conf-score">—</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="conf-bar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail tabs -->
+        <div style="margin-top:20px;" class="card fade-up">
+          <div class="tabs">
+            <div class="tab active" onclick="showTab('skills')"     id="tab-skills">Skills</div>
+            <div class="tab"        onclick="showTab('experience')"  id="tab-experience">Experience</div>
+            <div class="tab"        onclick="showTab('education')"   id="tab-education">Education</div>
+            <div class="tab"        onclick="showTab('confidence')"  id="tab-confidence">Confidence</div>
+            <div class="tab"        onclick="showTab('metadata')"    id="tab-metadata">Metadata</div>
+            <div class="tab"        onclick="showTab('json')"        id="tab-json">Raw JSON</div>
+          </div>
+
+          <div class="tab-panel active" id="panel-skills">
+            <div class="skills-wrap" id="skills-list">
+              <div class="empty">No skills found.</div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-experience">
+            <div class="timeline" id="experience-list">
+              <div class="empty">No experience found.</div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-education">
+            <div class="timeline" id="education-list">
+              <div class="empty">No education found.</div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-confidence">
+            <div class="field-conf-list" id="conf-fields">
+              <div class="empty">No confidence data.</div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-metadata">
+            <table class="meta-table"><tbody id="meta-tbody"></tbody></table>
+          </div>
+
+          <div class="tab-panel" id="panel-json">
+            <div class="json-viewer" id="json-viewer"></div>
+          </div>
+        </div>
+
+      </div><!-- /#results -->
+    </div>
+  </div><!-- /.grid -->
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   File drop zones
+══════════════════════════════════════════════════════ */
+const FILE_SOURCES = [
+  { dz:'dz-csv',    input:'input-csv',    lbl:'lbl-csv'    },
+  { dz:'dz-ats',    input:'input-ats',    lbl:'lbl-ats'    },
+  { dz:'dz-resume', input:'input-resume', lbl:'lbl-resume' },
+  { dz:'dz-notes',  input:'input-notes',  lbl:'lbl-notes'  },
+];
+
+FILE_SOURCES.forEach(({ dz, input, lbl }) => {
+  const zone  = document.getElementById(dz);
+  const inp   = document.getElementById(input);
+  const label = document.getElementById(lbl);
+
+  inp.addEventListener('change', () => {
+    if (inp.files.length) {
+      const n = inp.files[0].name;
+      label.textContent = n.length > 18 ? n.slice(0, 16) + '…' : n;
+      zone.classList.add('has-file');
+    }
+  });
+
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    inp.files = dt.files;
+    inp.dispatchEvent(new Event('change'));
+  });
+});
+
+/* ══════════════════════════════════════════════════════
+   Pipeline step animation
+══════════════════════════════════════════════════════ */
+const STEPS = ['extract','map','normalise','merge','confidence','validate'];
+
+function resetSteps() {
+  STEPS.forEach(s => {
+    const el = document.querySelector(`.step[data-step="${s}"]`);
+    if (el) el.classList.remove('active','done','error');
+  });
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function animateSteps(success) {
+  for (let i = 0; i < STEPS.length; i++) {
+    const el = document.querySelector(`.step[data-step="${STEPS[i]}"]`);
+    if (!el) continue;
+    el.classList.add('active');
+    await sleep(260);
+    el.classList.remove('active');
+    const finalClass = (!success && i === STEPS.length - 1) ? 'error' : 'done';
+    el.classList.add(finalClass);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   Run pipeline
+══════════════════════════════════════════════════════ */
+async function runPipeline() {
+  const btn         = document.getElementById('btn-run');
+  const errorBanner = document.getElementById('error-banner');
+
+  const csvFile    = document.getElementById('input-csv').files[0];
+  const atsFile    = document.getElementById('input-ats').files[0];
+  const resumeFile = document.getElementById('input-resume').files[0];
+  const notesFile  = document.getElementById('input-notes').files[0];
+  const githubRaw  = document.getElementById('input-github').value.trim();
+
+  if (!csvFile && !atsFile && !resumeFile && !notesFile && !githubRaw) {
+    showError('Please upload at least one input source.');
+    return;
+  }
+
+  const fd = new FormData();
+  if (csvFile)    fd.append('csv_file',    csvFile);
+  if (atsFile)    fd.append('ats_file',    atsFile);
+  if (resumeFile) fd.append('resume_file', resumeFile);
+  if (notesFile)  fd.append('notes_file',  notesFile);
+  if (githubRaw)  fd.append('github_url',  githubRaw.startsWith('http') ? githubRaw : `https://github.com/${githubRaw}`);
+
+  // Loading state
+  btn.classList.add('loading');
+  btn.disabled = true;
+  errorBanner.style.display = 'none';
+  document.getElementById('idle-placeholder').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  resetSteps();
+
+  const stepAnim = animateSteps(true);
+
+  try {
+    const res = await fetch('/api/v1/transform', {
+      method: 'POST',
+      body: fd,
+    });
+
+    await stepAnim;
+
+    if (!res.ok) {
+      const payload = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(payload.detail || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    renderResults(data);
+
+  } catch (err) {
+    await stepAnim.catch(() => {});
+    // mark last step as error
+    resetSteps();
+    STEPS.forEach((s, i) => {
+      const el = document.querySelector(`.step[data-step="${s}"]`);
+      if (el) el.classList.add(i < STEPS.length - 1 ? 'done' : 'error');
+    });
+    showError(err.message || 'Pipeline error. Ensure the API server is running on port 8000.');
+    document.getElementById('idle-placeholder').style.display = 'block';
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function showError(msg) {
+  const b = document.getElementById('error-banner');
+  b.textContent = '⚠ ' + msg;
+  b.style.display = 'block';
+}
+
+/* ══════════════════════════════════════════════════════
+   Render results
+══════════════════════════════════════════════════════ */
+function renderResults(data) {
+  document.getElementById('results').style.display = 'block';
+
+  // Name & avatar
+  const name = data.full_name || data.first_name || 'Unknown';
+  document.getElementById('res-name').textContent   = name;
+  document.getElementById('res-avatar').textContent = initials(name);
+
+  // Subtitle
+  const parts = [data.current_title, data.current_company, data.location?.display].filter(Boolean);
+  document.getElementById('res-meta').textContent = parts.join(' · ') || 'No title / location info';
+
+  // Info grid
+  const grid = document.getElementById('res-info-grid');
+  const rows = [
+    ['Candidate ID', data.candidate_id ? data.candidate_id.slice(0,8) + '…' : '—'],
+    ['Email(s)',      (data.emails || []).join(', ') || '—'],
+    ['Phone(s)',      (data.phones || []).join(', ') || '—'],
+    ['Location',     data.location?.display || '—'],
+    ['Sources Used', (data.confidence?.sources_used || []).join(', ') || '—'],
+    ['Summary',      data.summary ? data.summary.slice(0,90) + (data.summary.length > 90 ? '…' : '') : '—'],
+  ];
+  grid.innerHTML = rows.map(([k,v]) =>
+    `<div class="info-item"><div class="info-key">${k}</div><div class="info-value">${v}</div></div>`
+  ).join('');
+
+  // Confidence bar
+  const overall = data.confidence?.overall_score ?? null;
+  if (overall !== null) {
+    document.getElementById('conf-score').textContent = (overall * 100).toFixed(1) + '%';
+    document.getElementById('conf-bar').style.width   = (overall * 100).toFixed(1) + '%';
+  } else {
+    document.getElementById('conf-score').textContent = 'N/A';
+  }
+
+  // Skills
+  const skillsList = document.getElementById('skills-list');
+  const skills = data.skills || [];
+  skillsList.innerHTML = skills.length
+    ? skills.map(s => `<span class="skill-chip">${typeof s === 'string' ? s : s.name}</span>`).join('')
+    : '<div class="empty">No skills found.</div>';
+
+  // Experience
+  const expList = document.getElementById('experience-list');
+  const exp = data.experience || [];
+  expList.innerHTML = exp.length
+    ? exp.map(e => {
+        const dates = [fmtDate(e.start_date), e.is_current ? 'Present' : fmtDate(e.end_date)].filter(Boolean).join(' – ');
+        const curr  = e.is_current ? '<span class="current-badge">Current</span>' : '';
+        return `
+          <div class="tl-item">
+            <div class="tl-dot">💼</div>
+            <div class="tl-body">
+              <div class="tl-title">${e.title || '—'}${curr}</div>
+              <div class="tl-sub">${e.company || '—'}</div>
+              <div class="tl-dates">${dates}${e.duration_months ? ` · ${e.duration_months}mo` : ''}</div>
+            </div>
+          </div>`;
+      }).join('')
+    : '<div class="empty">No experience found.</div>';
+
+  // Education
+  const eduList = document.getElementById('education-list');
+  const edu = data.education || [];
+  eduList.innerHTML = edu.length
+    ? edu.map(e => `
+        <div class="tl-item">
+          <div class="tl-dot">🎓</div>
+          <div class="tl-body">
+            <div class="tl-title">${e.institution || '—'}</div>
+            <div class="tl-sub">${[capitalize(e.degree), e.field_of_study].filter(Boolean).join(' in ')}</div>
+            <div class="tl-dates">${fmtDate(e.end_date) || ''}${e.gpa ? ` · GPA ${e.gpa}` : ''}</div>
+          </div>
+        </div>`).join('')
+    : '<div class="empty">No education found.</div>';
+
+  // Confidence fields
+  const confFields = document.getElementById('conf-fields');
+  const fields = data.confidence?.fields || {};
+  const fieldEntries = Object.entries(fields).sort((a,b) => b[1].score - a[1].score);
+  confFields.innerHTML = fieldEntries.length
+    ? fieldEntries.map(([field, fc]) => {
+        const pct   = (fc.score * 100).toFixed(0);
+        const color = fc.score >= .85 ? 'var(--green)' : fc.score >= .6 ? 'var(--amber)' : 'var(--red)';
+        return `
+          <div class="field-conf-item">
+            <div class="field-conf-name">${field}</div>
+            <div class="field-conf-bar"><div class="field-conf-fill" style="width:${pct}%;background:${color}"></div></div>
+            <div class="field-conf-score">${pct}%</div>
+          </div>`;
+      }).join('')
+    : '<div class="empty">No confidence data.</div>';
+
+  // Metadata
+  const meta = data.metadata || {};
+  document.getElementById('meta-tbody').innerHTML = [
+    ['Run ID',              meta.run_id || '—'],
+    ['Pipeline Version',    meta.pipeline_version || '—'],
+    ['Started At',          meta.started_at ? new Date(meta.started_at).toLocaleString() : '—'],
+    ['Duration',            meta.duration_ms != null ? meta.duration_ms.toFixed(1) + ' ms' : '—'],
+    ['Sources Requested',   (meta.sources_requested || []).join(', ') || '—'],
+    ['Sources Succeeded',   (meta.sources_succeeded || []).join(', ') || '—'],
+    ['Sources Failed',      (meta.sources_failed    || []).join(', ') || '—'],
+    ['Validation Passed',   meta.validation_passed  != null ? String(meta.validation_passed) : '—'],
+    ['Validation Warnings', meta.validation_warnings ?? '—'],
+    ['Validation Errors',   meta.validation_errors   ?? '—'],
+  ].map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+  // Raw JSON
+  document.getElementById('json-viewer').innerHTML = syntaxHL(JSON.stringify(data, null, 2));
+
+  showTab('skills');
+}
+
+/* ── Tab switching ────────────────────────────────────────────────── */
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'   + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+/* ── Helpers ──────────────────────────────────────────────────────── */
+function initials(name) {
+  return name.split(' ').filter(Boolean).slice(0,2).map(p => p[0].toUpperCase()).join('');
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { year:'numeric', month:'short' });
+}
+
+function capitalize(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+}
+
+function syntaxHL(json) {
+  return json
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*(?:[eE][+-]?\d+)?)/g, m => {
+      if (/^"/.test(m)) return /:$/.test(m) ? `<span class="j-key">${m}</span>` : `<span class="j-str">${m}</span>`;
+      if (/true|false/.test(m)) return `<span class="j-bool">${m}</span>`;
+      if (/null/.test(m))       return `<span class="j-null">${m}</span>`;
+      return `<span class="j-num">${m}</span>`;
+    });
+}
+</script>
+</body>
+</html>

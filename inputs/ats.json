@@ -1,0 +1,132 @@
+{
+  "id": "ATS-2024-00789",
+  "status": "active",
+  "full_name": "Jane Smith",
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "emails": ["jane.smith@example.com", "j.smith@personal.io"],
+  "phones": ["+14155550198", "+14085550199"],
+  "location": "San Francisco, CA, USA",
+  "location_structured": {
+    "city": "San Francisco",
+    "state": "CA",
+    "country": "United States",
+    "country_code": "US"
+  },
+  "headline": "Senior Software Engineer | Python | Cloud | Distributed Systems",
+  "summary": "Senior Software Engineer with 7+ years of experience building scalable distributed systems and cloud-native applications. Deep expertise in Python, Django, and AWS. Led engineering teams of 5-10 engineers. Open-source contributor with 500+ GitHub stars across personal projects.",
+  "years_of_experience": 7.5,
+  "skills": [
+    "Python", "Django", "FastAPI", "React", "TypeScript",
+    "PostgreSQL", "Redis", "Elasticsearch",
+    "AWS", "GCP", "Docker", "Kubernetes", "Terraform",
+    "Apache Kafka", "Apache Airflow",
+    "REST API", "GraphQL", "gRPC",
+    "Git", "CI/CD", "Agile", "TDD"
+  ],
+  "experience": [
+    {
+      "company": "Acme Corp",
+      "title": "Senior Software Engineer",
+      "location": "San Francisco, CA",
+      "start_date": "2021-03",
+      "end_date": null,
+      "is_current": true,
+      "description": "Lead engineer for the data platform team, building real-time data pipelines serving 10M+ daily active users.",
+      "responsibilities": [
+        "Designed and implemented microservices architecture reducing system latency by 40%",
+        "Led migration of legacy monolith to Kubernetes, improving deployment frequency from monthly to daily",
+        "Mentored 3 junior engineers and conducted weekly code reviews",
+        "Established CI/CD best practices adopted across 5 engineering teams"
+      ],
+      "technologies": ["Python", "FastAPI", "PostgreSQL", "Redis", "Kafka", "Kubernetes", "AWS"],
+      "achievements": [
+        "Reduced infrastructure costs by 35% through automated scaling and resource optimization",
+        "Achieved 99.99% uptime SLA for critical payment processing service"
+      ]
+    },
+    {
+      "company": "TechStartup Inc",
+      "title": "Software Engineer",
+      "location": "San Francisco, CA",
+      "start_date": "2018-06",
+      "end_date": "2021-02",
+      "is_current": false,
+      "description": "Full-stack engineer building customer-facing product features and internal tooling.",
+      "responsibilities": [
+        "Built and maintained REST APIs serving 500K daily requests",
+        "Developed React frontend components used by 200K+ users",
+        "Implemented automated testing suite achieving 90%+ code coverage"
+      ],
+      "technologies": ["Python", "Django", "React", "PostgreSQL", "Docker", "AWS"]
+    },
+    {
+      "company": "DevShop LLC",
+      "title": "Junior Software Engineer",
+      "location": "Austin, TX",
+      "start_date": "2016-08",
+      "end_date": "2018-05",
+      "is_current": false,
+      "description": "Backend developer focused on API development and database optimization.",
+      "responsibilities": [
+        "Developed RESTful APIs using Flask and Python",
+        "Optimized slow database queries, improving average response time by 60%",
+        "Participated in agile sprints and daily standups"
+      ],
+      "technologies": ["Python", "Flask", "MySQL", "Redis", "Linux"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start_date": "2012-08",
+      "end_date": "2016-05",
+      "gpa": "3.8",
+      "honors": ["Dean's List", "Phi Beta Kappa"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "DataFusion CLI",
+      "description": "Open-source CLI tool for data pipeline orchestration with support for 20+ data sources.",
+      "repository_url": "https://github.com/janesmith/datafusion-cli",
+      "technologies": ["Python", "Click", "Apache Airflow", "Docker"],
+      "is_open_source": true,
+      "stars": 342,
+      "forks": 58
+    },
+    {
+      "name": "PyMetrics Dashboard",
+      "description": "Real-time application performance monitoring dashboard built with FastAPI and React.",
+      "url": "https://pymetrics.janesmith.dev",
+      "repository_url": "https://github.com/janesmith/pymetrics",
+      "technologies": ["Python", "FastAPI", "React", "TypeScript", "Grafana"],
+      "is_open_source": true,
+      "stars": 189
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect – Professional",
+      "issuing_organization": "Amazon Web Services",
+      "issue_date": "2022-11",
+      "expiry_date": "2025-11",
+      "credential_id": "AWS-SAP-12345"
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "issuing_organization": "Cloud Native Computing Foundation",
+      "issue_date": "2023-04",
+      "expiry_date": "2026-04",
+      "credential_id": "CKA-2023-4567"
+    }
+  ],
+  "social_links": [
+    {"platform": "linkedin", "url": "https://linkedin.com/in/janesmith"},
+    {"platform": "github", "url": "https://github.com/janesmith"},
+    {"platform": "portfolio", "url": "https://janesmith.dev"}
+  ],
+  "languages": ["English", "Spanish"]
+}

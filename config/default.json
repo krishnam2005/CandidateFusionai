@@ -1,0 +1,30 @@
+{
+  "output_fields": [
+    "candidate_id",
+    "full_name",
+    "first_name",
+    "last_name",
+    "emails",
+    "phones",
+    "location",
+    "summary",
+    "skills",
+    "experience",
+    "education",
+    "projects",
+    "certifications",
+    "social_links",
+    "languages",
+    "confidence",
+    "provenance",
+    "metadata"
+  ],
+  "include_provenance": true,
+  "include_confidence": true,
+  "include_metadata": true,
+  "flatten_arrays": false,
+  "date_format": "ISO8601",
+  "null_handling": "omit",
+  "confidence_threshold": 0.0,
+  "output_format": "json"
+}

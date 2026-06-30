@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: candidate-fusion:latest
+    container_name: candidate_fusion_api
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=console
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    volumes:
+      # Mount inputs and outputs for easy local usage
+      - ./inputs:/app/inputs:ro
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Optional: run CLI as a one-shot container
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: candidate-fusion:latest
+    container_name: candidate_fusion_cli
+    volumes:
+      - ./inputs:/app/inputs:ro
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - LOG_LEVEL=INFO
+    entrypoint: ["python", "main.py"]
+    command:
+      - "--ats"
+      - "inputs/ats.json"
+      - "--csv"
+      - "inputs/recruiter.csv"
+      - "--notes"
+      - "inputs/notes.txt"
+      - "--config"
+      - "config/default.json"
+      - "--output"
+      - "outputs/candidate_output.json"
+    profiles:
+      - cli
+    depends_on: []
+
+networks:
+  default:
+    name: candidate_fusion_net

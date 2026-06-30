@@ -1,0 +1,2 @@
+first_name,last_name,email,phone,location,current_title,current_company,skills,years_experience,linkedin_url,github_url,summary
+Jane,Smith,jane.smith@example.com,+1 (415) 555-0198,"San Francisco, CA",Senior Software Engineer,Acme Corp,"Python, Django, React, PostgreSQL, Docker, AWS, Kubernetes, REST API, Git",7,https://www.linkedin.com/in/janesmith,https://github.com/janesmith,"Experienced full-stack engineer specializing in scalable web applications and cloud infrastructure. Passionate about developer tooling and open-source."

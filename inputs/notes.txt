@@ -1,0 +1,46 @@
+Recruiter Notes — Jane Smith
+Date: 2024-01-15
+Recruiter: Michael Chen
+
+Candidate: Jane Smith
+Email: jane.smith@example.com
+Phone: (415) 555-0198
+Location: San Francisco, CA
+
+LinkedIn: linkedin.com/in/janesmith
+GitHub: github.com/janesmith
+
+--- INTERVIEW SUMMARY ---
+
+Spoke with Jane for 45 minutes. Strong communication skills and technical depth.
+
+Background:
+- 7+ years of experience in Python and backend systems
+- Currently at Acme Corp as Senior SWE, leading the data platform team
+- Previously at TechStartup Inc (3 years) and DevShop LLC (2 years)
+- UC Berkeley CS grad, class of 2016
+
+Technical skills mentioned during call:
+Python, FastAPI, Django, React, TypeScript, PostgreSQL, Redis, Kafka, Kubernetes,
+Docker, AWS, GCP, Terraform, Elasticsearch, GraphQL, REST API, CI/CD, TDD, Agile
+
+Highlights:
+- Led microservices migration project (reduced latency by 40%)
+- Reduced infra costs by 35% at current role
+- AWS Certified Solutions Architect (Professional) – expires 2025
+- Certified Kubernetes Administrator (CKA) – expires 2026
+- Contributor to several open-source projects, ~530 total GitHub stars
+
+Soft Skills Assessment:
+- Excellent communicator — explained distributed systems trade-offs clearly
+- Leadership experience: mentored 3 junior engineers
+- Collaborative: emphasized team success over individual metrics
+
+Compensation Expectations:
+- Current: $175K base + equity
+- Target: $200-220K base + equity
+- Open to relocation: No (wants to stay in Bay Area)
+- Open to hybrid: Yes (2-3 days in office)
+
+Overall Assessment: Strong hire recommendation ⭐⭐⭐⭐⭐
+Next Steps: Schedule technical loop with hiring manager
